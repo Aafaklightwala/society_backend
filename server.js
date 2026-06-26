@@ -16,6 +16,7 @@ app.use("/api/visitors", require("./routes/visitor.routes"));
 app.use("/api/maintenance", require("./routes/maintenance.routes"));
 app.use("/api/complaints", require("./routes/complaint.routes"));
 app.use("/api/amenities", require("./routes/amenity.routes"));
+app.use("/api/residents", require("./routes/residents.routes"));
 
 // ── Health check ──────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
