@@ -1,13 +1,23 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
+const server = http.createServer(app);
 
 // ── Middleware ────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const io = new Server(server, {
+  cors: { origin: "*", methods: ["GET", "POST"] },
+  pingTimeout: 60000,
+  pingInterval: 25000,
+});
+require("./socket/socket")(io);
 
 // ── Routes ────────────────────────────────────────────────────────────────
 app.use("/api/auth", require("./routes/auth.routes"));
@@ -17,6 +27,7 @@ app.use("/api/maintenance", require("./routes/maintenance.routes"));
 app.use("/api/complaints", require("./routes/complaint.routes"));
 app.use("/api/amenities", require("./routes/amenity.routes"));
 app.use("/api/residents", require("./routes/residents.routes"));
+app.use("/api/intercom", require("./routes/intercom.routes"));
 
 // ── Health check ──────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
@@ -38,6 +49,7 @@ app.use((err, req, res, next) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Society ERP API running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🔌 Socket.IO ready for WebRTC signaling`);
 });
