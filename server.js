@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const path = require("path"); // ← was missing — caused ReferenceError on startup
 const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
@@ -12,27 +13,28 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ── Socket.IO ─────────────────────────────────────────────────────────────
 const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] },
   pingTimeout: 60000,
   pingInterval: 25000,
 });
 require("./socket/socket")(io);
-
 app.set("io", io);
+
+// ── Static uploads ────────────────────────────────────────────────────────
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ── Routes ────────────────────────────────────────────────────────────────
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/dashboard", require("./routes/dashboard.routes"));
-app.use("/api/visitors", require("./routes/visitor.routes"));
+app.use("/api/visitors", require("./routes/visitor.routes")); // ← only once
+app.use("/api/notifications", require("./routes/notification.routes"));
 app.use("/api/maintenance", require("./routes/maintenance.routes"));
 app.use("/api/complaints", require("./routes/complaint.routes"));
 app.use("/api/amenities", require("./routes/amenity.routes"));
 app.use("/api/residents", require("./routes/residents.routes"));
 app.use("/api/intercom", require("./routes/intercom.routes"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api/visitors", require("./routes/visitor.routes"));
-app.use("/api/notifications", require("./routes/notification.routes"));
 
 // ── Health check ──────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
