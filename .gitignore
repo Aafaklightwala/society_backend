@@ -2,3 +2,5 @@ node_modules/
 .env
 uploads/
 *.log
+uploads/visitors/*
+!uploads/visitors/.gitkeep

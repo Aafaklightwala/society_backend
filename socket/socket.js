@@ -2,6 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  WebRTC Signaling Server using Socket.IO
 //  Handles: presence, offer/answer/ICE, call control, room management
+//  + Visitor Module: personal `user:<id>` room for notifications/status pushes
 // ─────────────────────────────────────────────────────────────────────────────
 
 const jwt = require("jsonwebtoken");
@@ -37,6 +38,10 @@ module.exports = (io) => {
 
     // Join a society room so we can broadcast to society members easily
     socket.join(`society:${society_id}`);
+
+    // ── NEW: Join a personal room — Visitor Module emits visitor-approved,
+    // visitor-rejected, and notification events here via io.to(`user:${id}`)
+    socket.join(`user:${userId}`);
 
     // Notify society peers that this user came online
     socket.to(`society:${society_id}`).emit("user-online", {
